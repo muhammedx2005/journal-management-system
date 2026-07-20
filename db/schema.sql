@@ -1,11 +1,11 @@
--- Journal Management System - baslangic semasi (SQLite)
--- Bu dosya uygulama her baslatildiginda config/database.js tarafindan otomatik
--- calistirilir; tum ifadeler "IF NOT EXISTS" korumali oldugu icin tekrar
--- calistirmak (orn. her sunucu restart'inda) guvenlidir, ayri bir kurulum
--- adimina gerek yoktur.
+-- Journal Management System - baslangic semasi (PostgreSQL / Supabase)
+-- Bu dosya uygulama her baslatildiginda config/database.js -> initDatabase()
+-- tarafindan otomatik calistirilir; CREATE TABLE'lar "IF NOT EXISTS" korumali,
+-- trigger'lar da DROP + CREATE ile idempotent oldugu icin tekrar calistirmak
+-- (orn. her sunucu restart'inda) guvenlidir, ayri bir kurulum adimina gerek yoktur.
 
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     surname TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
@@ -34,11 +34,11 @@ CREATE TABLE IF NOT EXISTS users (
     is_author INTEGER NOT NULL DEFAULT 0,
     is_reviewer INTEGER NOT NULL DEFAULT 0,
     is_editor INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS submissions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     paper_code TEXT NOT NULL UNIQUE,
     author_id INTEGER NOT NULL,
     title TEXT NOT NULL,
@@ -47,27 +47,35 @@ CREATE TABLE IF NOT EXISTS submissions (
     file_path TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'submitted'
         CHECK (status IN ('submitted', 'under_review', 'revision_required', 'accepted', 'rejected', 'published')),
-    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
--- SQLite'da MySQL/T-SQL'deki "ON UPDATE CURRENT_TIMESTAMP" karsiligi yoktur;
--- bu trigger updated_at kolonunu her UPDATE'te otomatik gunceller.
-CREATE TRIGGER IF NOT EXISTS trg_submissions_updated_at
-AFTER UPDATE ON submissions
-FOR EACH ROW
+-- PostgreSQL'de MySQL/T-SQL'deki "ON UPDATE CURRENT_TIMESTAMP" karsiligi
+-- yoktur; bir fonksiyon + trigger ile updated_at kolonu her UPDATE'te
+-- otomatik guncellenir. "CREATE TRIGGER IF NOT EXISTS" PostgreSQL'de
+-- desteklenmedigi icin DROP + CREATE ile idempotent hale getirildi.
+CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE submissions SET updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = OLD.id;
+    NEW.updated_at = now();
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_submissions_updated_at ON submissions;
+CREATE TRIGGER trg_submissions_updated_at
+BEFORE UPDATE ON submissions
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
 
 -- Hakem atamalari: bir makaleye birden fazla hakem atanabilir, ama ayni hakem
 -- ayni makaleye sadece bir kez atanabilir (UNIQUE constraint).
 CREATE TABLE IF NOT EXISTS review_assignments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     submission_id INTEGER NOT NULL,
     reviewer_id INTEGER NOT NULL,
-    assigned_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    assigned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     FOREIGN KEY (submission_id) REFERENCES submissions(id),
     FOREIGN KEY (reviewer_id) REFERENCES users(id),
     UNIQUE (submission_id, reviewer_id)
@@ -75,13 +83,13 @@ CREATE TABLE IF NOT EXISTS review_assignments (
 
 -- Bir atama icin en fazla bir degerlendirme girilebilir (assignment_id UNIQUE).
 CREATE TABLE IF NOT EXISTS reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     assignment_id INTEGER NOT NULL UNIQUE,
     recommendation TEXT NOT NULL
         CHECK (recommendation IN ('accept', 'minor_revision', 'major_revision', 'reject')),
     comments_for_editor TEXT NOT NULL,
     comments_for_author TEXT NOT NULL,
-    submitted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     FOREIGN KEY (assignment_id) REFERENCES review_assignments(id)
 );
 
@@ -91,4 +99,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 -- Hakem hesabi icin ayni sekilde /reviewer/signup sayfasi kullanilabilir.
 -- Editor hesabinin self-signup sayfasi yoktur (hakem atamasi yapan rol oldugu
 -- icin bilincli olarak disariya kapali tutulur); "node scripts/create-editor.js"
--- scripti ile olusturulur.
+-- scripti ile olusturulur. Ilk superadmin hesabi ayrica server.js baslangicinda
+-- calisan otomatik seed fonksiyonuyla da garanti altina alinir (bkz.
+-- src/startup/seedSuperadmin.js).

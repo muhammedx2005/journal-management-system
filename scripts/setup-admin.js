@@ -12,7 +12,7 @@
 //   node scripts/setup-admin.js "kaynak@eposta.com" "hedef@eposta.com" "YeniSifre123"
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
-const { db } = require("../config/database");
+const { queryOne } = require("../config/database");
 const userModel = require("../src/models/userModel");
 
 const SALT_ROUNDS = 10;
@@ -27,13 +27,13 @@ const DEFAULT_SURNAME = "Kara";
 // icin is_superadmin kolonu (ve tum sema) buraya gelindiginde zaten garanti
 // altindadir - SQL Server'daki gibi ayrica bir ALTER TABLE kontrolune gerek yoktur.
 
-function findSourceUser(sourceEmail) {
-  const byEmail = userModel.findByEmail(sourceEmail);
+async function findSourceUser(sourceEmail) {
+  const byEmail = await userModel.findByEmail(sourceEmail);
   if (byEmail) return byEmail;
 
   // E-posta tam eslesmezse (orn. daha once degistirilmisse), tek bir editor
   // hesabi varsa onu bulmayi dene - boylece script tekrar tekrar calistirilabilir.
-  return db.prepare("SELECT * FROM users WHERE role = 'editor' ORDER BY id").get() || null;
+  return (await queryOne("SELECT * FROM users WHERE role = 'editor' ORDER BY id LIMIT 1")) || null;
 }
 
 async function main() {
@@ -42,7 +42,7 @@ async function main() {
   const targetEmail = targetEmailArg || DEFAULT_TARGET_EMAIL;
   const newPassword = passwordArg || DEFAULT_PASSWORD;
 
-  const sourceUser = findSourceUser(sourceEmail);
+  const sourceUser = await findSourceUser(sourceEmail);
   if (!sourceUser) {
     console.error(
       `"${sourceEmail}" e-postali bir kullanici (veya rolu 'editor' olan herhangi bir hesap) bulunamadi. ` +

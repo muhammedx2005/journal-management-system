@@ -1,118 +1,109 @@
-const { db, withDates, withDatesAll } = require("../../config/database");
+const { queryOne, queryAll, execute, withDates, withDatesAll } = require("../../config/database");
 const { STATUS } = require("../constants/submissionStatus");
 
-function createSubmission({ paperCode, authorId, title, abstract, keywords, filePath }) {
-  const result = db
-    .prepare(
-      `
+async function createSubmission({ paperCode, authorId, title, abstract, keywords, filePath }) {
+  const result = await execute(
+    `
       INSERT INTO submissions (paper_code, author_id, title, abstract, keywords, file_path, status)
       VALUES (@paperCode, @authorId, @title, @abstract, @keywords, @filePath, @status)
-    `
-    )
-    .run({ paperCode, authorId, title, abstract, keywords: keywords || null, filePath, status: STATUS.SUBMITTED });
+      RETURNING id
+    `,
+    { paperCode, authorId, title, abstract, keywords: keywords || null, filePath, status: STATUS.SUBMITTED }
+  );
 
-  return findById(result.lastInsertRowid);
+  return findById(result.rows[0].id);
 }
 
-function findById(id) {
-  return withDates(db.prepare("SELECT * FROM submissions WHERE id = @id").get({ id })) || null;
+async function findById(id) {
+  return withDates(await queryOne("SELECT * FROM submissions WHERE id = @id", { id })) || null;
 }
 
-function findByAuthorId(authorId) {
+async function findByAuthorId(authorId) {
   return withDatesAll(
-    db.prepare("SELECT * FROM submissions WHERE author_id = @authorId ORDER BY created_at DESC").all({ authorId })
+    await queryAll("SELECT * FROM submissions WHERE author_id = @authorId ORDER BY created_at DESC", { authorId })
   );
 }
 
-function countByAuthorId(authorId) {
-  const row = db
-    .prepare("SELECT COUNT(*) AS total FROM submissions WHERE author_id = @authorId")
-    .get({ authorId });
-  return row.total;
+async function countByAuthorId(authorId) {
+  const row = await queryOne("SELECT COUNT(*) AS total FROM submissions WHERE author_id = @authorId", { authorId });
+  return Number(row.total);
 }
 
 // Editor'un hakem atama sayfasi icin: tum makaleler + yazar adi/soyadi.
-function findAllWithAuthor() {
+async function findAllWithAuthor() {
   return withDatesAll(
-    db
-      .prepare(
-        `
+    await queryAll(`
       SELECT s.*, u.name AS author_name, u.surname AS author_surname
       FROM submissions s
       INNER JOIN users u ON u.id = s.author_id
       ORDER BY s.created_at DESC
-    `
-      )
-      .all()
+    `)
   );
 }
 
-function updateStatus(id, status) {
-  db.prepare("UPDATE submissions SET status = @status WHERE id = @id").run({ id, status });
+async function updateStatus(id, status) {
+  await execute("UPDATE submissions SET status = @status WHERE id = @id", { id, status });
 }
 
 // Editor'un makale detay/karar sayfasi icin: yazarin e-postasi da lazim (karar maili gonderilecek).
-function findByIdWithAuthor(id) {
+async function findByIdWithAuthor(id) {
   return (
     withDates(
-      db
-        .prepare(
-          `
+      await queryOne(
+        `
       SELECT s.*, u.name AS author_name, u.surname AS author_surname, u.email AS author_email
       FROM submissions s
       INNER JOIN users u ON u.id = s.author_id
       WHERE s.id = @id
-    `
-        )
-        .get({ id })
+    `,
+        { id }
+      )
     ) || null
   );
 }
 
 // Editor dashboard'unda durum bazli sayilari gostermek icin.
-function countsByStatus() {
-  const rows = db.prepare("SELECT status, COUNT(*) AS total FROM submissions GROUP BY status").all();
+async function countsByStatus() {
+  const rows = await queryAll("SELECT status, COUNT(*) AS total FROM submissions GROUP BY status");
 
   const counts = {};
   rows.forEach((row) => {
-    counts[row.status] = row.total;
+    counts[row.status] = Number(row.total);
   });
   return counts;
 }
 
 // Herkese acik ana sayfa/arsiv icin: sadece "published" durumundaki makaleler,
 // yazar adi/soyadi ile birlikte.
-function findPublished() {
+async function findPublished() {
   return withDatesAll(
-    db
-      .prepare(
-        `
+    await queryAll(
+      `
       SELECT s.*, u.name AS author_name, u.surname AS author_surname
       FROM submissions s
       INNER JOIN users u ON u.id = s.author_id
       WHERE s.status = @status
       ORDER BY s.updated_at DESC
-    `
-      )
-      .all({ status: STATUS.PUBLISHED })
+    `,
+      { status: STATUS.PUBLISHED }
+    )
   );
 }
 
 // Herkese acik makale detay sayfasi icin. Makale "published" degilse null
 // doner (henuz yayinlanmamis bir makale dogrudan id ile ziyaret edilemez).
-function findPublishedById(id) {
+async function findPublishedById(id) {
   return (
     withDates(
-      db
-        .prepare(
-          `
+      await queryOne(
+        `
       SELECT s.*, u.name AS author_name, u.surname AS author_surname, u.institution AS author_institution
       FROM submissions s
       INNER JOIN users u ON u.id = s.author_id
       WHERE s.id = @id AND s.status = @status
-    `
-        )
-        .get({ id, status: STATUS.PUBLISHED })
+    `,
+        { id, status: STATUS.PUBLISHED }
+      )
     ) || null
   );
 }
@@ -121,8 +112,8 @@ function findPublishedById(id) {
 // review_assignments/reviews kayitlarinin ONCE silinmis olmasi gerekir
 // (foreign key hatasi almamak icin) - bu yuzden controller katmaninda
 // dogru sirayla cagrilir, model burada sadece kendi satirini siler.
-function deleteById(id) {
-  db.prepare("DELETE FROM submissions WHERE id = @id").run({ id });
+async function deleteById(id) {
+  await execute("DELETE FROM submissions WHERE id = @id", { id });
 }
 
 module.exports = {
