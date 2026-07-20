@@ -3,6 +3,7 @@
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
+const { uploadsDir } = require("../../config/storage");
 
 const ALLOWED_EXTENSIONS = [".pdf", ".doc", ".docx"];
 
@@ -11,7 +12,7 @@ const ALLOWED_EXTENSIONS = [".pdf", ".doc", ".docx"];
 // mumkun degil. Dosyalara sadece src/controllers/fileController.js uzerinden,
 // yazar/atanan hakem/editor/yayinlanmis makale kontrolunden gecerek ulasilabilir.
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, "..", "..", "storage", "uploads"),
+  destination: uploadsDir,
   filename: (req, file, cb) => {
     const uniqueSuffix = crypto.randomBytes(8).toString("hex");
     const ext = path.extname(file.originalname).toLowerCase();

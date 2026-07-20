@@ -9,8 +9,7 @@ const submissionModel = require("../models/submissionModel");
 const reviewAssignmentModel = require("../models/reviewAssignmentModel");
 const { STATUS } = require("../constants/submissionStatus");
 const ROLES = require("../constants/roles");
-
-const UPLOADS_DIR = path.join(__dirname, "..", "..", "storage", "uploads");
+const { uploadsDir } = require("../../config/storage");
 
 async function canAccessSubmissionFile(sessionUser, submission) {
   if (submission.status === STATUS.PUBLISHED) {
@@ -56,7 +55,7 @@ async function downloadSubmissionFile(req, res) {
   // hem yeni sadece-dosya-adi formatli kayitlarla calisir, ayrica gelen deger her
   // ihtimalde dizin gezintisine (path traversal) izin vermeyecek sekilde temizlenir.
   const filename = path.basename(submission.file_path);
-  const absolutePath = path.join(UPLOADS_DIR, filename);
+  const absolutePath = path.join(uploadsDir, filename);
 
   res.download(absolutePath, filename, (err) => {
     if (err && !res.headersSent) {
