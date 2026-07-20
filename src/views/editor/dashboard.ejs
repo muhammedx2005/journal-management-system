@@ -1,0 +1,147 @@
+<%- include('../partials/header') %>
+<%- include('../partials/editor-subnav') %>
+
+<div class="dashboard-hero mb-4">
+  <p class="dashboard-hero__eyebrow mb-2">Editör Paneli</p>
+  <h1 class="dashboard-hero__title mb-1">Hoş geldin, <%= user.name %></h1>
+  <p class="mb-0 opacity-75"><%= journal.name %> dergisine gelen makalelerin durum özeti.</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-collection fs-2 text-primary"></i>
+        <div>
+          <div class="stat-tile__value"><%= totalSubmissions %></div>
+          <div class="text-muted small">Toplam Makale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#3730a3">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-inbox fs-2" style="color:#3730a3"></i>
+        <div>
+          <div class="stat-tile__value"><%= counts.submitted || 0 %></div>
+          <div class="text-muted small">Editör İncelemesinde</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#3730a3">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-people fs-2" style="color:#3730a3"></i>
+        <div>
+          <div class="stat-tile__value"><%= counts.under_review || 0 %></div>
+          <div class="text-muted small">Hakem Değerlendirmesinde</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#b54708">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-arrow-repeat fs-2" style="color:#b54708"></i>
+        <div>
+          <div class="stat-tile__value"><%= counts.revision_required || 0 %></div>
+          <div class="text-muted small">Revizyon İstendi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#027a48">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-check-circle fs-2" style="color:#027a48"></i>
+        <div>
+          <div class="stat-tile__value"><%= counts.accepted || 0 %></div>
+          <div class="text-muted small">Kabul Edildi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#b42318">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-x-circle fs-2" style="color:#b42318"></i>
+        <div>
+          <div class="stat-tile__value"><%= counts.rejected || 0 %></div>
+          <div class="text-muted small">Reddedildi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#027a48">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-globe fs-2" style="color:#027a48"></i>
+        <div>
+          <div class="stat-tile__value"><%= counts.published || 0 %></div>
+          <div class="text-muted small">Yayınlandı</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="mb-4">
+      <a href="/editor/submissions" class="btn btn-cta">
+        <i class="bi bi-list-ul me-1"></i>Tüm Makaleleri Görüntüle
+      </a>
+    </div>
+
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0"><i class="bi bi-hourglass-split me-2"></i>Bekleyen Görevler</h2>
+      </div>
+
+      <% if (pendingSubmissions.length === 0) { %>
+        <div class="card glass-card">
+          <div class="card-body text-center text-muted py-5">İşlem bekleyen makale bulunmuyor.</div>
+        </div>
+      <% } else { %>
+        <div class="card glass-card">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Makale Kodu</th>
+                  <th>Başlık</th>
+                  <th>Yazar</th>
+                  <th>Durum</th>
+                  <th class="text-end">İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% pendingSubmissions.forEach(function (submission) { %>
+                  <tr>
+                    <td class="text-nowrap"><%= submission.paper_code %></td>
+                    <td><%= submission.title %></td>
+                    <td class="text-nowrap"><%= submission.author_name %> <%= submission.author_surname %></td>
+                    <td><span class="badge rounded-pill badge--<%= submission.status %>"><%= submission.statusLabel %></span></td>
+                    <td class="text-end">
+                      <a href="/editor/submissions/<%= submission.id %>" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>İncele
+                      </a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <%- include('../partials/profile-summary-card') %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

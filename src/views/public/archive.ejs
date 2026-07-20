@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+
+<div class="page-banner p-4 p-md-5 mb-5">
+  <div class="page-banner__bg" style="background-image: url('<%= journal.media.indexingImage %>');"></div>
+  <div class="page-banner__overlay"></div>
+  <div>
+    <span class="hero-eyebrow mb-2"><i class="bi bi-journal-richtext"></i>Makaleler ve Sayılar</span>
+    <h1 class="h2 fw-bold mt-3 mb-0">Yayınlanan Makaleler</h1>
+  </div>
+</div>
+
+<% if (articles.length === 0) { %>
+  <div class="card shadow-sm">
+    <div class="card-body text-center text-muted py-5">
+      <i class="bi bi-journal-x display-6 d-block mb-2"></i>
+      Henüz yayınlanmış makale bulunmuyor.
+    </div>
+  </div>
+<% } else { %>
+  <div class="row g-4">
+    <% articles.forEach(function (article) { %>
+      <div class="col-md-6 col-lg-4">
+        <%- include('../partials/article-card', { article: article }) %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

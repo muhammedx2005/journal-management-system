@@ -1,0 +1,76 @@
+<%- include('../partials/header') %>
+
+<div class="mb-3">
+  <a href="/reviewer/assignments" class="text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Atanan Makalelere Dön</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body p-4">
+    <h1 class="h4 mb-1"><%= assignment.title %></h1>
+    <p class="text-muted small mb-3">Makale Kodu: <%= assignment.paper_code %></p>
+
+    <h2 class="h6 text-uppercase text-muted">Özet</h2>
+    <p><%= assignment.abstract %></p>
+
+    <% if (assignment.keywords) { %>
+      <p class="text-muted small">
+        <i class="bi bi-tags me-1"></i>Anahtar Kelimeler: <%= assignment.keywords %>
+      </p>
+    <% } %>
+
+    <a href="/files/<%= assignment.submission_id %>" class="btn btn-outline-secondary" target="_blank">
+      <i class="bi bi-download me-1"></i>Makale Dosyasını İndir
+    </a>
+  </div>
+</div>
+
+<% if (errorMessage) { %>
+  <div class="alert alert-danger py-2"><%= errorMessage %></div>
+<% } %>
+
+<div class="card">
+  <div class="card-body p-4">
+    <% if (existingReview) { %>
+      <h2 class="h5 mb-3"><i class="bi bi-check-circle text-success me-1"></i>Değerlendirmeniz</h2>
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Tavsiye Kararı</dt>
+        <dd class="col-sm-9"><%= recommendationLabels[existingReview.recommendation] %></dd>
+
+        <dt class="col-sm-3">Editöre Yorum</dt>
+        <dd class="col-sm-9"><%= existingReview.comments_for_editor %></dd>
+
+        <dt class="col-sm-3">Yazara Yorum</dt>
+        <dd class="col-sm-9"><%= existingReview.comments_for_author %></dd>
+
+        <dt class="col-sm-3">Gönderim Tarihi</dt>
+        <dd class="col-sm-9 text-muted"><%= existingReview.submitted_at.toLocaleDateString('tr-TR') %></dd>
+      </dl>
+    <% } else { %>
+      <h2 class="h5 mb-3">Değerlendirme Formu</h2>
+      <form action="/reviewer/assignments/<%= assignment.assignment_id %>/review" method="POST">
+        <div class="mb-3">
+          <label class="form-label">Tavsiye Kararı</label>
+          <select name="recommendation" class="form-select" required>
+            <option value="">Seçiniz</option>
+            <% Object.entries(recommendationLabels).forEach(function ([value, label]) { %>
+              <option value="<%= value %>"><%= label %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Editöre Yönelik Yorum <span class="text-muted fw-normal">(yazar görmez)</span></label>
+          <textarea name="commentsForEditor" class="form-control" rows="4" required></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Yazara Yönelik Yorum</label>
+          <textarea name="commentsForAuthor" class="form-control" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-send me-1"></i>Değerlendirmeyi Gönder
+        </button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

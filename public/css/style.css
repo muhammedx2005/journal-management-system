@@ -1,0 +1,903 @@
+/* ==========================================================================
+   Journal of Modern Software and Computer Engineering — tema katmani.
+   Bootstrap 5 uzerine kurulu: renk tokenlari + dark/light tema, glassmorphism
+   navbar, hero/gorsel bantlari ve panel bilesenleri (stat-tile, badge, card).
+   ========================================================================== */
+
+:root {
+  --font-heading: "Space Grotesk", "Inter", -apple-system, sans-serif;
+  --font-body: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --brand-primary: #6366f1;
+  --brand-primary-strong: #4338ca;
+  --brand-accent: #22d3ee;
+  --brand-gradient: linear-gradient(135deg, #4338ca 0%, #6366f1 45%, #22d3ee 100%);
+
+  --radius-lg: 1.25rem;
+  --radius-md: 0.85rem;
+  --shadow-soft: 0 1rem 2.5rem rgba(15, 23, 42, 0.08);
+  --shadow-lift: 0 1.25rem 3rem rgba(15, 23, 42, 0.14);
+}
+
+/* ---------- Light theme (default) ---------- */
+:root,
+[data-theme="light"] {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #eef0f8;
+  --text: #12131c;
+  --text-muted: #5c6478;
+  --border: rgba(15, 23, 42, 0.09);
+  --nav-bg: rgba(255, 255, 255, 0.72);
+  --nav-border: rgba(15, 23, 42, 0.08);
+  --nav-text: #12131c;
+  --surface-glass: rgba(255, 255, 255, 0.65);
+  --footer-bg: #0e1120;
+  --footer-text: rgba(255, 255, 255, 0.65);
+  --footer-heading: #ffffff;
+}
+
+/* ---------- Dark theme ---------- */
+[data-theme="dark"] {
+  --bg: #0a0d16;
+  --surface: #121623;
+  --surface-2: #191f30;
+  --text: #edf0f8;
+  --text-muted: #9aa3b8;
+  --border: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(10, 13, 22, 0.6);
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-text: #edf0f8;
+  --surface-glass: rgba(18, 22, 35, 0.55);
+  --footer-bg: #05060c;
+  --footer-text: rgba(255, 255, 255, 0.6);
+  --footer-heading: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Navbar elemanlari hicbir kosulda 100vw disina taşamaz - yatay kaydirma
+   cubugu olusturan asil sebep genelde navbar-collapse icindeki fazla oge
+   sayisidir, bu yuzden hem kapsayici hem de navbar burada sinirlanir. */
+.navbar-glass,
+.navbar-glass .container,
+.navbar-collapse {
+  max-width: 100vw;
+}
+
+/* Panel modu (author/reviewer/editor/superadmin/profile sayfalari): disaridaki
+   ana sayfadan hafifce ayrisan bir "yonetim panelinde" hissiyati - farkli
+   arka plan tonu (marka renginden cok hafif bir tint) + navbar'da ince bir
+   gradyan alt cizgi. Bkz. partials/header.ejs (isPanelPage hesaplamasi). */
+body.panel-mode {
+  background-color: var(--surface-2);
+  background-image:
+    radial-gradient(1100px 550px at 100% -8%, rgba(99, 102, 241, 0.09), transparent 60%),
+    radial-gradient(900px 480px at -6% 0%, rgba(34, 211, 238, 0.07), transparent 55%);
+  background-repeat: no-repeat;
+}
+
+body.panel-mode .navbar-glass {
+  border-bottom: 3px solid;
+  border-image: var(--brand-gradient) 1;
+}
+
+a {
+  color: var(--brand-primary);
+}
+
+h1, h2, h3, h4, h5, h6,
+.navbar-brand {
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  background: var(--brand-primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  z-index: 2000;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ============================== Custom scrollbar ========================== */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-primary) var(--bg);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-gradient);
+  border-radius: 50rem;
+  border: 2px solid var(--bg);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary-strong);
+}
+
+/* ============================== Navbar =================================== */
+.navbar-glass {
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Navbar container biraz daha genis kenar bosluguna sahip olur, boylece sag
+   ustteki profil rozeti/cikis butonu her zaman viewport kenarindan rahat
+   mesafede kalir. */
+.navbar-glass > .container {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  gap: 0.5rem 1rem;
+}
+
+/* Logo/dergi adi KESINLIKLE sikismaz veya taşmaz - navbar dar oldugunda
+   (cok sayida link veya dar ekran) once nav-linkler bir alt satira sarilir
+   (Bootstrap'in .navbar > .container'i zaten flex-wrap uygular), logo asla
+   kucultulmez. Cok uzun dergi adlari icin ellipsis sadece son care olarak
+   kalir, brand'in kendisi artik hic shrink olmaz. */
+.navbar-brand {
+  flex-shrink: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.brand-name {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Sag ustteki aksiyon kumesi (avatar, cikis yap, tema, hamburger): asla
+   sikismaz/deforme olmaz, sabit boyutunu her zaman korur. */
+.navbar-actions {
+  flex: none;
+}
+
+.navbar-actions > * {
+  flex-shrink: 0;
+}
+
+.navbar-glass .nav-link {
+  color: var(--nav-text);
+  opacity: 0.75;
+  font-weight: 500;
+  padding: 0.5rem 0.85rem !important;
+  border-radius: 0.6rem;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.navbar-glass .nav-link:hover,
+.navbar-glass .nav-link.active {
+  opacity: 1;
+  background-color: var(--surface-2);
+}
+
+.brand-name {
+  color: var(--nav-text);
+}
+
+.brand-sub {
+  color: var(--text-muted);
+}
+
+.brand-mark {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.75rem;
+  background: var(--brand-gradient);
+  color: #fff;
+  font-size: 1.15rem;
+  box-shadow: 0 0.4rem 1rem rgba(99, 102, 241, 0.35);
+  flex: none;
+}
+
+.brand-mark--sm {
+  width: 1.9rem;
+  height: 1.9rem;
+  font-size: 0.95rem;
+}
+
+.theme-toggle-btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: rotate(12deg);
+}
+
+.theme-icon-moon {
+  display: none;
+}
+[data-theme="dark"] .theme-icon-moon {
+  display: inline;
+}
+[data-theme="dark"] .theme-icon-sun {
+  display: none;
+}
+
+.user-chip {
+  width: 1.75rem;
+  height: 1.75rem;
+  min-width: 1.75rem;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  flex: none;
+}
+
+.user-id-chip {
+  color: var(--nav-text);
+  padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+  border-radius: 50rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  flex: none;
+}
+
+/* Oturum acikken her zaman gorunen, bariz bir cikis butonu (dropdown'a
+   gomulu degil - navbar daralsa/menu kapansa bile erisilebilir kalir). */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.4rem;
+  flex: none;
+  white-space: nowrap;
+  padding: 0 0.85rem;
+  border-radius: 50rem;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 0.5rem 1rem rgba(220, 38, 38, 0.3);
+}
+
+.glass-menu {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-lift);
+  border-radius: var(--radius-md);
+}
+
+.dropdown-item {
+  color: var(--text);
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.login-menu {
+  min-width: 19rem;
+}
+
+.login-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 0.6rem;
+}
+
+.login-menu-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.6rem;
+  background: var(--surface-2);
+  color: var(--brand-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.login-menu-desc {
+  color: var(--text-muted);
+}
+
+.btn-cta {
+  background: var(--brand-gradient);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0.5rem 1.25rem rgba(99, 102, 241, 0.35);
+  transition: all 0.3s ease;
+}
+.btn-cta:hover {
+  color: #fff;
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 0.75rem 2rem rgba(99, 102, 241, 0.45);
+}
+[data-theme="dark"] .btn-cta:hover {
+  box-shadow: 0 0.75rem 2rem rgba(99, 102, 241, 0.4), 0 0 1.75rem rgba(34, 211, 238, 0.35);
+}
+
+/* Hero'daki ikincil aksiyon icin mat/outline tarzi "premium" buton -
+   btn-cta'nin parlak gradyanina karsit, cam efektli ve daha sade. */
+.btn-outline-premium {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+.btn-outline-premium:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--brand-accent);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.4), 0 0.75rem 2rem rgba(34, 211, 238, 0.25);
+}
+
+/* ============================== Editor panel sub-nav ======================= */
+.editor-subnav__link {
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.editor-subnav__link:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.editor-subnav__link.active {
+  color: #fff;
+  background: var(--brand-gradient);
+  border-color: transparent;
+}
+
+/* ============================== Layout utils ============================== */
+.full-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* ============================== Hero ====================================== */
+.hero-modern {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  color: #fff;
+  isolation: isolate;
+}
+
+.hero-modern__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+  z-index: -2;
+}
+
+.hero-modern__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(15, 15, 40, 0.92) 0%, rgba(28, 26, 74, 0.82) 45%, rgba(34, 211, 238, 0.35) 100%);
+  z-index: -1;
+}
+
+.hero-modern .lead {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Ana dergi basligina teknolojik bir hava katan gradyan metin. Hero'nun
+   arkaplani her zaman koyu oldugundan (tema fark etmeksizin), sabit turkuaza
+   donen bir gradyan burada guvenle kullanilabilir. */
+.hero-title-gradient {
+  background: var(--brand-gradient);
+  background-image: linear-gradient(135deg, #818cf8 0%, #a78bfa 45%, var(--brand-accent) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: var(--brand-accent);
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0.35rem 0.85rem;
+  border-radius: 50rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(6px);
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.hero-stats .stat-num {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hero-stats .stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+}
+
+/* Standart (kucuk sayfa banner) hero: about/contact/rehber/indeksler sayfalari */
+.page-banner {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  color: #fff;
+  min-height: 220px;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+}
+
+.page-banner__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
+}
+
+.page-banner__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 13, 30, 0.55) 0%, rgba(10, 13, 30, 0.92) 100%);
+  z-index: -1;
+}
+
+/* ============================== Cards / surfaces ========================= */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.surface-2 {
+  background-color: var(--surface-2);
+}
+
+h1, h2, h3 {
+  margin-bottom: 0.75rem;
+}
+
+.section-eyebrow {
+  color: var(--brand-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.icon-tile {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  color: var(--brand-primary);
+  font-size: 1.3rem;
+  flex: none;
+}
+
+.gradient-ring {
+  padding: 3px;
+  border-radius: 1.4rem;
+  background: var(--brand-gradient);
+  display: inline-block;
+}
+
+.img-fluid-rounded {
+  border-radius: var(--radius-lg);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Editor profil karti */
+.profile-avatar {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.profile-fact {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.profile-fact:last-child {
+  border-bottom: none;
+}
+
+/* Durum rozetleri */
+.badge--submitted,
+.badge--under_review {
+  background-color: #eef2ff;
+  color: #3730a3;
+}
+
+.badge--revision_required {
+  background-color: #fff6ed;
+  color: #b54708;
+}
+
+.badge--accepted,
+.badge--published {
+  background-color: #ecfdf3;
+  color: #027a48;
+}
+
+.badge--rejected {
+  background-color: #fdecec;
+  color: #b42318;
+}
+
+.badge--pending {
+  background-color: #fff6ed;
+  color: #b54708;
+}
+
+.badge--approved {
+  background-color: #ecfdf3;
+  color: #027a48;
+}
+
+/* Panel dashboard'larindaki (author/reviewer/editor) istatistik kartlari. */
+.stat-tile {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--brand-primary);
+  border-radius: 0.5rem;
+  background-color: var(--surface);
+}
+
+/* Panel (author/reviewer/editor) karsilama banner'i ve "glassmorphism" panel
+   kartlari - ana sayfadaki .navbar-glass ile ayni blur+saydamlik dilini
+   dashboard'lara tasir. */
+.dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: 2rem 2.25rem;
+  background: var(--brand-gradient);
+  color: #fff;
+  box-shadow: var(--shadow-lift);
+}
+
+.dashboard-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.25), transparent 60%);
+  pointer-events: none;
+}
+
+.dashboard-hero__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.dashboard-hero__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.glass-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+}
+
+[data-theme="dark"] .glass-card:hover {
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.5), 0 0 1.75rem rgba(99, 102, 241, 0.3);
+}
+
+/* Dashboard'larda sag kolondaki "Profil Ozeti" karti, sol kolondaki ilk
+   ogeyle (buton/baslik) ayni tepe hizasinda gorunsun diye yukari cekilir -
+   .card-body'nin ust dolgusu (1.5rem) sol taraftaki butonun cok daha kucuk
+   olan ust bosluguna gore fazladan bir kayma yaratiyordu. Sadece kolonlarin
+   yan yana durdugu lg ve uzeri genisliklerde uygulanir; mobilde kolonlar alt
+   alta yigildigi icin bu duzeltme uygulanmaz (uzerindeki icerikle cakismasin
+   diye). */
+@media (min-width: 992px) {
+  .profile-summary-card {
+    margin-top: -1rem;
+  }
+}
+
+.stat-tile__value {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+
+/* "Son Yayınlanan Makaleler" karti (ana sayfa + yayin arsivi, bkz.
+   partials/article-card.ejs). Tum karti tiklanabilir yapmak icin baslik
+   stretched-link kullanir (position-relative burada sart), PDF butonu ise
+   z-index ile onun ustune cikar - boylece <a> ic ice gecmeden hem kart hem
+   buton ayri ayri tiklanabilir kalir. */
+.article-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.article-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--brand-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: var(--shadow-lift) !important;
+}
+
+.article-card:hover::before {
+  opacity: 1;
+}
+
+/* Karanlık modda hover'a hafif bir neon glow eklenir. */
+[data-theme="dark"] .article-card:hover {
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.5), 0 0 1.75rem rgba(99, 102, 241, 0.35) !important;
+}
+
+.article-card__title-link {
+  color: var(--text);
+}
+
+.article-card__title-link:hover {
+  color: var(--brand-primary);
+}
+
+/* Ozet metni 3 satirla sinirlanir (line-clamp) - kartlarin farkli uzunluktaki
+   ozetlerle bile ayni yukseklikte kalmasini saglar. */
+.article-card__abstract {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.article-card__pdf-btn {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: 50rem;
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.article-card__pdf-btn:hover {
+  background: var(--brand-gradient);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1.25rem rgba(99, 102, 241, 0.35);
+}
+
+/* Indeksleme kartlari */
+.index-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+}
+
+/* ============================== Footer ==================================== */
+.site-footer {
+  width: 100% !important;
+  max-width: 100vw;
+  background-color: var(--footer-bg);
+  color: var(--footer-text);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footer-heading {
+  color: var(--footer-heading);
+}
+
+.footer-tagline {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.link-footer {
+  color: var(--footer-text);
+  text-decoration: none;
+}
+.link-footer:hover {
+  color: #fff;
+}
+
+.footer-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================== Forms (login/signup/dashboard) ============ */
+.form-control,
+.form-select {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.2);
+}
+
+/* Bootstrap, tablo hucrelerinin arkaplan/yazi rengini kendi --bs-table-*
+   degiskenleriyle YONETIR (bunlar .card gibi tek bir background-color
+   kuraliyla ezilemez - her <td>/<th> uzerinde ayrica tanimlidir). Bu yuzden
+   koyu temada "bembeyaz kalan tablolar" sorunu icin Bootstrap'in kendi
+   degiskenlerini override etmek gerekir. */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+  --bs-table-border-color: var(--border);
+  --bs-table-striped-bg: var(--surface-2);
+  --bs-table-striped-color: var(--text);
+  --bs-table-active-bg: var(--surface-2);
+  --bs-table-active-color: var(--text);
+  --bs-table-hover-bg: var(--surface-2);
+  --bs-table-hover-color: var(--text);
+  color: var(--text);
+}
+
+@media (max-width: 991.98px) {
+  .navbar-glass .navbar-collapse {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-top: 0.75rem;
+    padding: 1rem;
+    box-shadow: var(--shadow-soft);
+  }
+}

@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+
+<div class="mb-3">
+  <a href="/articles" class="text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Makalelere Dön</a>
+</div>
+
+<div class="card">
+  <div class="card-body p-4 p-md-5">
+    <span class="badge rounded-pill badge--published mb-3"><i class="bi bi-globe me-1"></i>Yayınlandı</span>
+    <h1 class="h3 mb-2"><%= article.title %></h1>
+    <p class="text-muted small mb-1">Makale Kodu: <%= article.paper_code %></p>
+    <p class="text-muted small mb-4">
+      <i class="bi bi-person me-1"></i>
+      <%= article.author_name %> <%= article.author_surname %><% if (article.author_institution) { %> &middot; <%= article.author_institution %><% } %>
+    </p>
+
+    <h2 class="h6 text-uppercase text-muted">Özet</h2>
+    <p><%= article.abstract %></p>
+
+    <% if (article.keywords) { %>
+      <p class="text-muted small"><i class="bi bi-tags me-1"></i>Anahtar Kelimeler: <%= article.keywords %></p>
+    <% } %>
+
+    <a href="/files/<%= article.id %>" class="btn btn-primary mt-3" target="_blank">
+      <i class="bi bi-download me-1"></i>Makaleyi İndir (PDF)
+    </a>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+<%- include('../partials/editor-subnav') %>
+
+<div class="mb-4">
+  <h1 class="h3 mb-1">Makaleler</h1>
+  <p class="text-muted"><%= journal.name %> dergisine gelen tüm başvurular.</p>
+</div>
+
+<% if (errorMessage) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= errorMessage %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+  </div>
+<% } %>
+
+<% if (submissions.length === 0) { %>
+  <div class="card">
+    <div class="card-body text-center text-muted py-5">
+      <i class="bi bi-inbox display-6 d-block mb-2"></i>
+      Henüz makale bulunmuyor.
+    </div>
+  </div>
+<% } else { %>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Makale Kodu</th>
+            <th>Başlık</th>
+            <th>Yazar</th>
+            <th>Durum</th>
+            <th>Hakemler</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% submissions.forEach(function (submission) { %>
+            <tr>
+              <td class="text-nowrap"><%= submission.paper_code %></td>
+              <td><%= submission.title %></td>
+              <td class="text-nowrap"><%= submission.author_name %> <%= submission.author_surname %></td>
+              <td><span class="badge rounded-pill badge--<%= submission.status %>"><%= submission.statusLabel %></span></td>
+              <td class="text-nowrap">
+                <% if (submission.assignedReviewers.length === 0) { %>
+                  <span class="text-muted small">Atanmadı</span>
+                <% } else { %>
+                  <span class="small">
+                    <%= submission.assignedReviewers.filter(function (r) { return r.review_id; }).length %>
+                    / <%= submission.assignedReviewers.length %> tamamlandı
+                  </span>
+                <% } %>
+              </td>
+              <td class="text-end text-nowrap">
+                <a href="/editor/submissions/<%= submission.id %>" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye me-1"></i>Detay / Karar Ver
+                </a>
+                <form
+                  action="/editor/submissions/<%= submission.id %>/delete"
+                  method="POST"
+                  class="d-inline"
+                  onsubmit="return confirm('&#39;<%= submission.title %>&#39; makalesini ve varsa tüm hakem atamalarını/değerlendirmelerini kalıcı olarak silmek istediğinize emin misiniz?');"
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash3 me-1"></i>Makaleyi Sil
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

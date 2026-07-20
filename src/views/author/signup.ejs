@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <i class="bi bi-person-plus display-6 text-primary"></i>
+          <h1 class="h3 mt-2 mb-1">Yazar Kaydı</h1>
+          <p class="text-muted small mb-0"><%= journal.name %> için yazar hesabı oluşturun.</p>
+        </div>
+
+        <% if (errorMessage) { %>
+          <div class="alert alert-danger py-2"><%= errorMessage %></div>
+        <% } %>
+
+        <form action="/author/signup" method="POST">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Ad</label>
+              <input type="text" name="name" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Soyad</label>
+              <input type="text" name="surname" class="form-control" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">E-posta</label>
+              <input type="email" name="email" class="form-control" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Şifre</label>
+              <input type="password" name="password" class="form-control" required minlength="8" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Kurum</label>
+              <input type="text" name="institution" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">ORCID No</label>
+              <input type="text" name="orcidNo" class="form-control" placeholder="0000-0000-0000-0000" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Telefon</label>
+              <input type="text" name="phone" class="form-control" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 mt-4">
+            <i class="bi bi-person-check me-1"></i>Kayıt Ol
+          </button>
+        </form>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+          Zaten hesabınız var mı? <a href="/author/login">Giriş yapın</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

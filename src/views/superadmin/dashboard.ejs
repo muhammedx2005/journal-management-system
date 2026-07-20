@@ -1,0 +1,252 @@
+<%- include('../partials/header') %>
+<%- include('../partials/editor-subnav') %>
+
+<div class="mb-4">
+  <h1 class="h3 mb-1"><i class="bi bi-shield-lock text-primary me-2"></i>Süper Admin Paneli</h1>
+  <p class="text-muted">Sistem genelinde kullanıcı ve makale yönetimi. Buradaki işlemler kalıcıdır.</p>
+</div>
+
+<% if (errorMessage) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= errorMessage %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+  </div>
+<% } %>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-people fs-2 text-primary"></i>
+        <div>
+          <div class="stat-tile__value"><%= users.length %></div>
+          <div class="text-muted small">Toplam Kullanıcı</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-journal-richtext fs-2 text-primary"></i>
+        <div>
+          <div class="stat-tile__value"><%= submissions.length %></div>
+          <div class="text-muted small">Toplam Makale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-globe fs-2 text-primary"></i>
+        <div>
+          <div class="stat-tile__value"><%= submissions.filter(function (s) { return s.status === "published"; }).length %></div>
+          <div class="text-muted small">Yayınlanan Makale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-shield-lock fs-2 text-primary"></i>
+        <div>
+          <div class="stat-tile__value"><%= users.filter(function (u) { return u.is_superadmin; }).length %></div>
+          <div class="text-muted small">Süper Admin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-tile h-100" style="border-left-color:#b54708">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-hourglass-split fs-2" style="color:#b54708"></i>
+        <div>
+          <div class="stat-tile__value"><%= pendingUsers.length %></div>
+          <div class="text-muted small">Onay Bekleyen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0"><i class="bi bi-hourglass-split me-2"></i>Onay Bekleyenler</h2>
+  </div>
+
+  <% if (pendingUsers.length === 0) { %>
+    <div class="card">
+      <div class="card-body text-center text-muted py-5">Onay bekleyen kullanıcı bulunmuyor.</div>
+    </div>
+  <% } else { %>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Ad Soyad</th>
+              <th>E-posta</th>
+              <th>Rol</th>
+              <th>Kurum</th>
+              <th>Kayıt Tarihi</th>
+              <th class="text-end">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pendingUsers.forEach(function (pendingUser) { %>
+              <tr>
+                <td><%= pendingUser.name %> <%= pendingUser.surname %></td>
+                <td class="text-nowrap"><%= pendingUser.email %></td>
+                <td class="d-flex flex-wrap gap-1">
+                  <% pendingUser.roleBadges.forEach(function (role) { %>
+                    <span class="badge rounded-pill text-bg-secondary"><%= roleLabels[role] %></span>
+                  <% }) %>
+                </td>
+                <td><%= pendingUser.institution || "–" %></td>
+                <td class="text-nowrap small text-muted"><%= new Date(pendingUser.created_at).toLocaleDateString("tr-TR") %></td>
+                <td class="text-end">
+                  <form action="/superadmin/users/<%= pendingUser.id %>/approve" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-success">
+                      <i class="bi bi-check-lg me-1"></i>Onayla
+                    </button>
+                  </form>
+                  <form
+                    action="/superadmin/users/<%= pendingUser.id %>/reject"
+                    method="POST"
+                    onsubmit="return confirm('&#39;<%= pendingUser.name %> <%= pendingUser.surname %>&#39; kullanıcısını reddedip silmek istediğinize emin misiniz?');"
+                    class="d-inline"
+                  >
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-x-lg me-1"></i>Reddet
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0"><i class="bi bi-people me-2"></i>Kullanıcılar</h2>
+  </div>
+
+  <% if (users.length === 0) { %>
+    <div class="card">
+      <div class="card-body text-center text-muted py-5">Henüz kullanıcı bulunmuyor.</div>
+    </div>
+  <% } else { %>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Ad Soyad</th>
+              <th>E-posta</th>
+              <th>Rol</th>
+              <th>Durum</th>
+              <th>Süper Admin</th>
+              <th>Kayıt Tarihi</th>
+              <th class="text-end">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(function (user) { %>
+              <tr>
+                <td><%= user.name %> <%= user.surname %></td>
+                <td class="text-nowrap"><%= user.email %></td>
+                <td class="d-flex flex-wrap gap-1">
+                  <% if (user.roleBadges.length === 0) { %>
+                    <span class="text-muted small">&ndash;</span>
+                  <% } %>
+                  <% user.roleBadges.forEach(function (role) { %>
+                    <span class="badge rounded-pill text-bg-secondary"><%= roleLabels[role] %></span>
+                  <% }) %>
+                </td>
+                <td><span class="badge rounded-pill badge--<%= user.status %>"><%= userStatusLabels[user.status] %></span></td>
+                <td>
+                  <% if (user.is_superadmin) { %>
+                    <span class="badge rounded-pill badge--published"><i class="bi bi-check-lg"></i></span>
+                  <% } else { %>
+                    <span class="text-muted small">&ndash;</span>
+                  <% } %>
+                </td>
+                <td class="text-nowrap small text-muted"><%= new Date(user.created_at).toLocaleDateString("tr-TR") %></td>
+                <td class="text-end">
+                  <form
+                    action="/superadmin/users/<%= user.id %>/delete"
+                    method="POST"
+                    onsubmit="return confirm('&#39;<%= user.name %> <%= user.surname %>&#39; kullanıcısını ve varsa tüm makalelerini/hakem atamalarını kalıcı olarak silmek istediğinize emin misiniz?');"
+                    class="d-inline"
+                  >
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash3 me-1"></i>Sil
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<div class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0"><i class="bi bi-journal-richtext me-2"></i>Makaleler</h2>
+  </div>
+
+  <% if (submissions.length === 0) { %>
+    <div class="card">
+      <div class="card-body text-center text-muted py-5">Henüz makale bulunmuyor.</div>
+    </div>
+  <% } else { %>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Makale Kodu</th>
+              <th>Başlık</th>
+              <th>Yazar</th>
+              <th>Durum</th>
+              <th class="text-end">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% submissions.forEach(function (submission) { %>
+              <tr>
+                <td class="text-nowrap"><%= submission.paper_code %></td>
+                <td><%= submission.title %></td>
+                <td class="text-nowrap"><%= submission.author_name %> <%= submission.author_surname %></td>
+                <td><span class="badge rounded-pill badge--<%= submission.status %>"><%= submission.statusLabel %></span></td>
+                <td class="text-end">
+                  <form
+                    action="/superadmin/submissions/<%= submission.id %>/delete"
+                    method="POST"
+                    onsubmit="return confirm('&#39;<%= submission.title %>&#39; makalesini ve varsa tüm hakem atamalarını/değerlendirmelerini kalıcı olarak silmek istediğinize emin misiniz?');"
+                    class="d-inline"
+                  >
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash3 me-1"></i>Sil
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+
+<div class="page-banner p-4 p-md-5 mb-5">
+  <div class="page-banner__bg" style="background-image: url('<%= journal.media.contactImage %>');" role="img" aria-label="<%= journal.media.contactImageAlt %>"></div>
+  <div class="page-banner__overlay"></div>
+  <div>
+    <span class="hero-eyebrow mb-2"><i class="bi bi-envelope-paper"></i>İletişim</span>
+    <h1 class="h2 fw-bold mt-3 mb-0">Bizimle İletişime Geçin</h1>
+  </div>
+</div>
+
+<section class="mb-5">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <span class="icon-tile mb-3"><i class="bi bi-envelope"></i></span>
+          <h3 class="h6">E-posta</h3>
+          <a href="mailto:<%= journal.contact.generalEmail %>" class="text-decoration-none small"><%= journal.contact.generalEmail %></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <span class="icon-tile mb-3"><i class="bi bi-telephone"></i></span>
+          <h3 class="h6">Telefon</h3>
+          <p class="small text-muted mb-0"><%= journal.contact.phone %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <span class="icon-tile mb-3"><i class="bi bi-geo-alt"></i></span>
+          <h3 class="h6">Konum</h3>
+          <p class="small text-muted mb-0"><%= journal.contact.address %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5">
+  <span class="section-eyebrow">Editoryal İletişim</span>
+  <h2 class="h3 mb-4 mt-2">Baş Editör</h2>
+  <div class="card">
+    <div class="card-body p-4 p-md-5">
+      <div class="d-flex flex-column flex-md-row gap-4 align-items-md-center">
+        <span class="profile-avatar"><%= journal.editorInChief.initials %></span>
+        <div class="flex-grow-1">
+          <h3 class="h5 mb-1">
+            <% if (journal.editorInChief.title) { %><%= journal.editorInChief.title %> <% } %><%= journal.editorInChief.name %>
+          </h3>
+          <p class="text-muted mb-3"><strong>Kurum:</strong> <%= journal.editorInChief.institution %>, <%= journal.editorInChief.department %></p>
+          <div class="d-flex flex-wrap gap-3">
+            <a href="mailto:<%= journal.editorInChief.email %>" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-envelope me-1"></i><%= journal.editorInChief.email %>
+            </a>
+            <span class="btn btn-sm btn-outline-secondary disabled">
+              <i class="bi bi-telephone me-1"></i><%= journal.editorInChief.phone %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

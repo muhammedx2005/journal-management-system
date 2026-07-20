@@ -1,0 +1,100 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-hero mb-4">
+  <p class="dashboard-hero__eyebrow mb-2">Hakem Paneli</p>
+  <h1 class="dashboard-hero__title mb-1">Hoş geldin, <%= user.name %></h1>
+  <p class="mb-0 opacity-75"><%= journal.name %> için değerlendirme görevlerinizin özeti.</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-4">
+    <div class="card stat-tile glass-card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-clipboard-data fs-2 text-primary"></i>
+        <div>
+          <div class="stat-tile__value"><%= totalAssigned %></div>
+          <div class="text-muted small">Toplam Atanan Makale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#b54708">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-hourglass-split fs-2" style="color:#b54708"></i>
+        <div>
+          <div class="stat-tile__value"><%= totalPending %></div>
+          <div class="text-muted small">Değerlendirme Bekleyen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <div class="card stat-tile glass-card h-100" style="border-left-color:#027a48">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-check-circle fs-2" style="color:#027a48"></i>
+        <div>
+          <div class="stat-tile__value"><%= totalCompleted %></div>
+          <div class="text-muted small">Tamamlanan Değerlendirme</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="mb-4">
+      <a href="/reviewer/assignments" class="btn btn-cta">
+        <i class="bi bi-list-check me-1"></i>Bana Atanan Makaleleri Görüntüle
+      </a>
+    </div>
+
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0"><i class="bi bi-hourglass-split me-2"></i>Bekleyen Görevler</h2>
+      </div>
+
+      <% if (pendingAssignments.length === 0) { %>
+        <div class="card glass-card">
+          <div class="card-body text-center text-muted py-5">Bekleyen değerlendirme göreviniz bulunmuyor.</div>
+        </div>
+      <% } else { %>
+        <div class="card glass-card">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Makale Kodu</th>
+                  <th>Başlık</th>
+                  <th>Durum</th>
+                  <th class="text-end">İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% pendingAssignments.forEach(function (assignment) { %>
+                  <tr>
+                    <td class="text-nowrap"><%= assignment.paper_code %></td>
+                    <td><%= assignment.title %></td>
+                    <td><span class="badge rounded-pill badge--<%= assignment.status %>"><%= assignment.statusLabel %></span></td>
+                    <td class="text-end">
+                      <a href="/reviewer/assignments/<%= assignment.assignment_id %>" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil-square me-1"></i>Değerlendir
+                      </a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <%- include('../partials/profile-summary-card') %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

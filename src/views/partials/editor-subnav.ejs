@@ -1,0 +1,33 @@
+<%
+  // Editor panelinin butun sayfalarinda (dashboard, makaleler, ve varsa
+  // superadmin) ayni sekme cubugu gorunur - Superadmin boylece "izole bir
+  // sayfa" degil, Editor Panelinin bir sekmesi gibi hissettirir.
+  var editorTabs = [
+    { label: "Genel Bakış", path: "/editor/dashboard", icon: "bi-speedometer2" },
+    { label: "Makaleler", path: "/editor/submissions", icon: "bi-journal-richtext" },
+  ];
+  if (typeof user !== "undefined" && user && user.isSuperadmin) {
+    editorTabs.push({
+      label: "Süper Admin / Sistem Yönetimi",
+      path: "/superadmin/dashboard",
+      icon: "bi-shield-lock",
+    });
+    editorTabs.push({
+      label: "Kullanıcı Yönetimi",
+      path: "/superadmin/users",
+      icon: "bi-person-gear",
+    });
+  }
+%>
+<nav class="editor-subnav mb-4">
+  <ul class="nav nav-pills gap-2 flex-wrap">
+    <% editorTabs.forEach(function (tab) { %>
+      <% var isActive = currentPath.indexOf(tab.path) === 0; %>
+      <li class="nav-item">
+        <a class="nav-link editor-subnav__link <%= isActive ? 'active' : '' %>" href="<%= tab.path %>">
+          <i class="bi <%= tab.icon %> me-1"></i><%= tab.label %>
+        </a>
+      </li>
+    <% }) %>
+  </ul>
+</nav>

@@ -1,0 +1,30 @@
+<!-- Dashboard'lardaki profil ozet karti: session.user'dan (res.locals.user,
+     bkz. src/app.js) beslenir, ayrica bir controller/route degisikligi
+     gerektirmez. Hizli goruntuleme + /profile'a link (tam duzenleme orada). -->
+<div class="card glass-card profile-summary-card mb-4">
+  <div class="card-body p-4">
+    <h2 class="h6 mb-3"><i class="bi bi-person-lines-fill me-2"></i>Profil Özeti</h2>
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="profile-avatar"><%= (user.name || "?").charAt(0).toUpperCase() %></span>
+      <div class="text-truncate">
+        <div class="fw-semibold text-truncate"><%= user.name %></div>
+        <div class="text-muted small text-truncate"><%= user.email %></div>
+      </div>
+    </div>
+    <div class="profile-fact">
+      <i class="bi bi-person-badge text-primary"></i>
+      <span class="text-muted small">Rol</span>
+      <span class="ms-auto badge rounded-pill text-bg-secondary"><%= user.role %></span>
+    </div>
+    <% if (user.isSuperadmin) { %>
+      <div class="profile-fact">
+        <i class="bi bi-shield-lock text-primary"></i>
+        <span class="text-muted small">Yetki</span>
+        <span class="ms-auto badge rounded-pill badge--published">Süper Admin</span>
+      </div>
+    <% } %>
+    <a href="/profile" class="btn btn-outline-secondary btn-sm w-100 mt-3">
+      <i class="bi bi-gear me-1"></i>Profil Ayarları
+    </a>
+  </div>
+</div>

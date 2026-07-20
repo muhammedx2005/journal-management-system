@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card">
+      <div class="card-body p-4 p-md-5">
+        <div class="mb-4">
+          <h1 class="h3 mb-1"><i class="bi bi-cloud-upload text-primary me-2"></i>Yeni Makale Yükle</h1>
+          <p class="text-muted small mb-0"><%= journal.name %> dergisine makale gönderiyorsunuz.</p>
+        </div>
+
+        <% if (errorMessage) { %>
+          <div class="alert alert-danger py-2"><%= errorMessage %></div>
+        <% } %>
+
+        <form action="/author/papers" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Makale Başlığı</label>
+            <input type="text" name="title" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Özet (Abstract)</label>
+            <textarea name="abstract" class="form-control" rows="6" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Anahtar Kelimeler (virgül ile ayırın)</label>
+            <input type="text" name="keywords" class="form-control" placeholder="örn. yapay zeka, veri madenciliği" />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Makale Dosyası (PDF, DOC, DOCX - max 20MB)</label>
+            <input type="file" name="paperFile" class="form-control" accept=".pdf,.doc,.docx" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-send me-1"></i>Başvuruyu Gönder
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

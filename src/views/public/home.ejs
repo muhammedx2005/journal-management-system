@@ -1,0 +1,158 @@
+<%- include('../partials/header') %>
+
+<div class="hero-modern p-4 p-md-5 mb-5">
+  <div class="hero-modern__bg" style="background-image: url('<%= journal.media.heroImage %>');" role="img" aria-label="<%= journal.media.heroImageAlt %>"></div>
+  <div class="hero-modern__overlay"></div>
+
+  <div class="py-4 py-md-5" style="max-width: 46rem;">
+    <span class="hero-eyebrow mb-3"><i class="bi bi-stars"></i>Açık Erişimli &middot; Hakemli &middot; Uluslararası</span>
+    <h1 class="display-5 fw-bold mb-3 mt-3 hero-title-gradient"><%= journal.name %></h1>
+    <p class="lead mb-4"><%= journal.tagline %></p>
+
+    <div class="d-flex flex-wrap gap-3 mb-5">
+      <a href="/articles" class="btn btn-light btn-lg">
+        <i class="bi bi-journal-richtext me-1"></i>Yayınlanan Makaleleri Görüntüle
+      </a>
+      <a href="/author/signup" class="btn btn-outline-premium btn-lg">
+        <i class="bi bi-send me-1"></i>Yazar Olarak Başvur
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num"><%= journal.about.focusAreas.length %>+</div>
+        <div class="stat-label">Odak Alanı</div>
+      </div>
+      <div>
+        <div class="stat-num">4-8</div>
+        <div class="stat-label">Hafta Değerlendirme</div>
+      </div>
+      <div>
+        <div class="stat-num">%100</div>
+        <div class="stat-label">Açık Erişim</div>
+      </div>
+      <div>
+        <div class="stat-num">Çift</div>
+        <div class="stat-label">Kör Hakemlik</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="mb-5 pb-2">
+  <div class="row align-items-center g-5">
+    <div class="col-lg-6 order-lg-2">
+      <div class="gradient-ring">
+        <img src="<%= journal.media.aboutImage %>" alt="<%= journal.media.aboutImageAlt %>" class="img-fluid-rounded" style="max-height: 340px;" />
+      </div>
+    </div>
+    <div class="col-lg-6 order-lg-1">
+      <span class="section-eyebrow">Hakkımızda</span>
+      <h2 class="h3 mb-3 mt-2">Teoriyi endüstriyel uygulamayla buluşturuyoruz</h2>
+      <p class="text-muted"><%= journal.about.summary %></p>
+      <a href="/about" class="fw-semibold text-decoration-none">
+        Dergimizi daha yakından tanıyın <i class="bi bi-arrow-right"></i>
+      </a>
+
+      <div class="row row-cols-2 g-3 mt-4">
+        <% journal.about.focusAreas.slice(0, 4).forEach(function (area) { %>
+          <div class="col">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-check2-circle text-primary fs-5"></i>
+              <span class="small"><%= area %></span>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5 pb-2">
+  <div class="text-center mb-5">
+    <span class="section-eyebrow">Neden JMSCE?</span>
+    <h2 class="h3 mt-2">Modern akademik yayıncılığın gerektirdiği her şey</h2>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100 p-2">
+        <div class="card-body">
+          <span class="icon-tile mb-3"><i class="bi bi-cpu"></i></span>
+          <h3 class="h6">Yapay Zeka Odaklı Kapsam</h3>
+          <p class="text-muted small mb-0">Yazılım mühendisliği ve yapay zekanın kesişimindeki güncel araştırmalara öncelik veriyoruz.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 p-2">
+        <div class="card-body">
+          <span class="icon-tile mb-3"><i class="bi bi-shield-check"></i></span>
+          <h3 class="h6">Çift-Kör Hakemlik</h3>
+          <p class="text-muted small mb-0">Tarafsız ve şeffaf bir değerlendirme süreciyle bilimsel kaliteyi güvence altına alıyoruz.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 p-2">
+        <div class="card-body">
+          <span class="icon-tile mb-3"><i class="bi bi-globe2"></i></span>
+          <h3 class="h6">Küresel Görünürlük</h3>
+          <p class="text-muted small mb-0">Açık erişim modeliyle çalışmalarınızı dünya genelindeki araştırmacılara ulaştırıyoruz.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <span class="section-eyebrow">Yayın Arşivi</span>
+      <h2 class="h4 mb-0 mt-2">Son Yayınlanan Makaleler</h2>
+    </div>
+    <a href="/articles" class="small text-decoration-none fw-semibold">Tümünü Gör <i class="bi bi-arrow-right"></i></a>
+  </div>
+
+  <% if (latestArticles.length === 0) { %>
+    <div class="card shadow-sm">
+      <div class="card-body text-center text-muted py-5">
+        <i class="bi bi-journal-x display-6 d-block mb-2"></i>
+        Henüz yayınlanmış makale bulunmuyor.
+      </div>
+    </div>
+  <% } else { %>
+    <div class="row g-4">
+      <% latestArticles.forEach(function (article) { %>
+        <div class="col-md-6 col-lg-4">
+          <%- include('../partials/article-card', { article: article }) %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<section class="mb-5">
+  <div class="row g-3">
+    <% (journal.media.homeGallery || []).forEach(function (img) { %>
+      <div class="col-md-4">
+        <img src="<%= img.url %>" alt="<%= img.alt %>" class="img-fluid-rounded" style="height: 220px;" />
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<section class="hero-modern p-4 p-md-5 text-center">
+  <div class="hero-modern__bg" style="background-image: url('<%= journal.media.heroImage %>');"></div>
+  <div class="hero-modern__overlay"></div>
+  <div class="py-4">
+    <h2 class="h3 mb-3">Araştırmanızı Bizimle Yayımlayın</h2>
+    <p class="lead mb-4 mx-auto" style="max-width: 40rem;">
+      Baş Editörümüz <%= journal.editorInChief.name %> ve alanında uzman hakem kurulumuzla, çalışmanızı hak ettiği görünürlüğe kavuşturun.
+    </p>
+    <a href="/author/signup" class="btn btn-cta btn-lg">
+      <i class="bi bi-send me-1"></i>Hemen Makale Gönder
+    </a>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

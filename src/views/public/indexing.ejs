@@ -1,0 +1,37 @@
+<%- include('../partials/header') %>
+
+<div class="page-banner p-4 p-md-5 mb-5">
+  <div class="page-banner__bg" style="background-image: url('<%= journal.media.indexingImage %>');" role="img" aria-label="<%= journal.media.indexingImageAlt %>"></div>
+  <div class="page-banner__overlay"></div>
+  <div>
+    <span class="hero-eyebrow mb-2"><i class="bi bi-globe2"></i>İndeksler</span>
+    <h1 class="h2 fw-bold mt-3 mb-0">Dizinlenme Hedeflerimiz</h1>
+  </div>
+</div>
+
+<section class="mb-5">
+  <p class="text-muted fs-5" style="max-width: 48rem;">
+    <%= journal.name %>, akademik görünürlüğünü ve etki alanını artırmak için aşağıdaki
+    uluslararası indeks ve veri tabanlarına dahil olmayı hedeflemektedir. Bu sayfa,
+    derginin dizinlenme yol haritasını şeffaf biçimde paylaşmak amacıyla düzenli olarak
+    güncellenir.
+  </p>
+</section>
+
+<section class="mb-5">
+  <div class="row g-4">
+    <% journal.indexingDatabases.forEach(function (db) { %>
+      <div class="col-md-6 col-lg-4">
+        <div class="index-card">
+          <span class="icon-tile"><i class="bi <%= db.icon %>"></i></span>
+          <div>
+            <h3 class="h6 mb-1"><%= db.name %></h3>
+            <span class="badge rounded-pill badge--submitted"><%= db.status %></span>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

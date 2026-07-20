@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Sayfa basligi ve dergi adi TAMAMEN journal.config.js'den geliyor, hardcoded degil -->
+  <title><%= pageTitle %> | <%= journal.name %></title>
+  <meta name="description" content="<%= journal.tagline || journal.name %>" />
+
+  <!-- Tema tercihini (dark/light) sayfa ciziminden ONCE uygular; boylece flash-of-wrong-theme olmaz -->
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("jms-theme");
+        var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<%
+  // Panel modu: /author, /reviewer, /editor, /superadmin, /profile altindaki
+  // sayfalar (login/signup haric - onlar hala herkese acik giris sayfalari)
+  // kullaniciya "yonetim panelinde" oldugu hissini veren farkli bir kabuk
+  // (arka plan tonu + genisletilmis container) kullanir - bkz. .panel-mode.
+  var panelPrefixes = ["/author", "/reviewer", "/editor", "/superadmin", "/profile"];
+  var isAuthPage = /\/(login|signup)$/.test(currentPath);
+  var isPanelPage = !isAuthPage && panelPrefixes.some(function (prefix) {
+    return currentPath.indexOf(prefix) === 0;
+  });
+%>
+<body class="d-flex flex-column min-vh-100<%= isPanelPage ? ' panel-mode' : '' %>">
+  <a href="#main-content" class="visually-hidden-focusable skip-link">İçeriğe geç</a>
+
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-glass sticky-top py-2">
+      <div class="container">
+        <a href="/" class="navbar-brand d-flex align-items-center gap-2">
+          <span class="brand-mark d-inline-flex align-items-center justify-content-center">
+            <i class="bi bi-cpu-fill"></i>
+          </span>
+          <span class="fw-semibold brand-name"><%= journal.name %></span>
+        </a>
+
+        <div class="d-flex align-items-center gap-2 order-lg-3 navbar-actions">
+          <% if (typeof user !== "undefined" && user) { %>
+            <span class="user-id-chip d-none d-sm-inline-flex align-items-center gap-2">
+              <span class="user-chip"><%= (user.name || "?").charAt(0).toUpperCase() %></span>
+              <span class="small fw-semibold d-none d-lg-inline"><%= user.name %></span>
+            </span>
+            <form action="/<%= user.role %>/logout" method="POST" class="d-inline">
+              <button type="submit" class="logout-btn" title="Çıkış Yap" aria-label="Çıkış Yap">
+                <i class="bi bi-box-arrow-right"></i>
+                <span class="d-none d-sm-inline">Çıkış Yap</span>
+              </button>
+            </form>
+          <% } %>
+          <button
+            type="button"
+            id="themeToggle"
+            class="theme-toggle-btn"
+            aria-label="Aydınlık / karanlık temayı değiştir"
+            title="Temayı değiştir"
+          >
+            <i class="bi bi-sun-fill theme-icon-sun"></i>
+            <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
+          </button>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNav"
+            aria-controls="mainNav"
+            aria-expanded="false"
+            aria-label="Menüyü aç/kapat"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
+        <div class="collapse navbar-collapse order-lg-2" id="mainNav">
+          <% if (!(typeof user !== "undefined" && user)) { %>
+            <ul class="navbar-nav mx-lg-auto align-items-lg-center gap-lg-1">
+              <% (journal.navigation || []).forEach(function (item) { %>
+                <% var isActive = item.path === "/" ? currentPath === "/" : currentPath.indexOf(item.path) === 0; %>
+                <li class="nav-item">
+                  <a class="nav-link <%= isActive ? 'active' : '' %>" href="<%= item.path %>"><%= item.label %></a>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+
+          <%
+            // Giris yapmis kullanicilar icin navbar kalabalik olmasin diye
+            // sadece bu 4 link gosterilir (ziyaretci linkleri - Hakkimizda,
+            // Iletisim vb. - yukarida tamamen gizlendi). "Cikis Yap" ayrica
+            // sag ustteki navbar-actions bolumunde zaten mevcut.
+          %>
+          <ul class="navbar-nav align-items-lg-center gap-lg-2 <%= (typeof user !== "undefined" && user) ? 'mx-lg-auto' : 'ms-lg-3' %>">
+            <% if (typeof user !== "undefined" && user) { %>
+              <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Siteye Dön</a></li>
+              <% if (user.role === "author") { %>
+                <li class="nav-item"><a class="nav-link" href="/author/dashboard">Panelim</a></li>
+                <li class="nav-item"><a class="nav-link" href="/author/papers">Makalelerim</a></li>
+              <% } else if (user.role === "reviewer") { %>
+                <li class="nav-item"><a class="nav-link" href="/reviewer/dashboard">Panelim</a></li>
+                <li class="nav-item"><a class="nav-link" href="/reviewer/assignments">Atanan Makaleler</a></li>
+              <% } else if (user.role === "editor") { %>
+                <li class="nav-item"><a class="nav-link" href="/editor/dashboard">Panelim</a></li>
+                <li class="nav-item"><a class="nav-link" href="/editor/submissions">Makaleler</a></li>
+              <% }
+                 // Not: Superadmin yetkisi artik ayri bir navbar linki degil, Editor
+                 // Panelinin kendi ic menusune (bkz. partials/editor-subnav) entegre
+                 // - "isole bir sayfa" hissi vermemesi icin.
+              %>
+              <li class="nav-item"><a class="nav-link" href="/profile"><i class="bi bi-person-circle me-1"></i>Profilim</a></li>
+            <% } else {
+              var loginPortals = [
+                { role: "author", label: "Yazar Girişi", icon: "bi-pencil-square", href: "/author/login", desc: "Makalenizi gönderin ve sürecini takip edin" },
+                { role: "reviewer", label: "Hakem Girişi", icon: "bi-clipboard-check", href: "/reviewer/login", desc: "Değerlendirme davetlerinizi görüntüleyin" },
+                { role: "editor", label: "Editör Girişi", icon: "bi-journal-check", href: "/editor/login", desc: "Süreç yönetimi ve karar paneli" },
+              ];
+            %>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link dropdown-toggle fw-semibold"
+                  href="#"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <i class="bi bi-box-arrow-in-right me-1"></i>Giriş Yap
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end glass-menu p-2 login-menu">
+                  <% loginPortals.forEach(function (portal) { %>
+                    <li>
+                      <a class="dropdown-item login-menu-item" href="<%= portal.href %>">
+                        <span class="login-menu-icon"><i class="bi <%= portal.icon %>"></i></span>
+                        <span class="d-flex flex-column">
+                          <span class="fw-semibold"><%= portal.label %></span>
+                          <span class="small login-menu-desc"><%= portal.desc %></span>
+                        </span>
+                      </a>
+                    </li>
+                  <% }) %>
+                </ul>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content" class="flex-grow-1">
+    <div class="<%= isPanelPage ? 'container-xl' : 'container' %> py-5">

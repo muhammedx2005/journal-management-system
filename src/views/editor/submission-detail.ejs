@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+<%- include('../partials/editor-subnav') %>
+
+<div class="mb-3">
+  <a href="/editor/submissions" class="text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Makalelere Dön</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+      <h1 class="h4 mb-0"><%= submission.title %></h1>
+      <span class="badge rounded-pill badge--<%= submission.status %> fs-6"><%= submission.statusLabel %></span>
+    </div>
+    <p class="text-muted small mb-3">Makale Kodu: <%= submission.paper_code %></p>
+    <p class="text-muted small mb-3">
+      <i class="bi bi-person me-1"></i>Yazar: <%= submission.author_name %> <%= submission.author_surname %>
+      (<%= submission.author_email %>)
+    </p>
+
+    <h2 class="h6 text-uppercase text-muted">Özet</h2>
+    <p><%= submission.abstract %></p>
+
+    <% if (submission.keywords) { %>
+      <p class="text-muted small"><i class="bi bi-tags me-1"></i>Anahtar Kelimeler: <%= submission.keywords %></p>
+    <% } %>
+
+    <a href="/files/<%= submission.id %>" class="btn btn-outline-secondary" target="_blank">
+      <i class="bi bi-download me-1"></i>Makale Dosyasını İndir
+    </a>
+  </div>
+</div>
+
+<% if (errorMessage) { %>
+  <div class="alert alert-danger py-2"><%= errorMessage %></div>
+<% } %>
+
+<div class="card mb-4">
+  <div class="card-body p-4">
+    <h2 class="h5 mb-3"><i class="bi bi-people me-1"></i>Hakem Değerlendirmeleri</h2>
+
+    <% if (assignments.length === 0) { %>
+      <p class="text-muted mb-4">Bu makaleye henüz hakem atanmadı.</p>
+    <% } else { %>
+      <% assignments.forEach(function (assignment) { %>
+        <div class="border rounded-3 p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong><%= assignment.reviewer_name %> <%= assignment.reviewer_surname %></strong>
+            <% if (assignment.review_id) { %>
+              <span class="badge rounded-pill badge--accepted"><i class="bi bi-check-circle me-1"></i>Tamamlandı</span>
+            <% } else { %>
+              <span class="badge rounded-pill badge--under_review"><i class="bi bi-hourglass-split me-1"></i>Bekliyor</span>
+            <% } %>
+          </div>
+          <% if (assignment.review_id) { %>
+            <dl class="row mb-0 small">
+              <dt class="col-sm-3">Tavsiye Kararı</dt>
+              <dd class="col-sm-9"><%= recommendationLabels[assignment.recommendation] %></dd>
+              <dt class="col-sm-3">Editöre Yorum</dt>
+              <dd class="col-sm-9"><%= assignment.comments_for_editor %></dd>
+              <dt class="col-sm-3">Yazara Yorum</dt>
+              <dd class="col-sm-9"><%= assignment.comments_for_author %></dd>
+            </dl>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <% if (availableReviewers.length > 0) { %>
+      <h3 class="h6 text-uppercase text-muted mt-4">Yeni Hakem Ata</h3>
+      <form action="/editor/submissions/<%= submission.id %>/assign" method="POST" class="d-flex flex-wrap gap-2">
+        <select name="reviewerId" class="form-select" style="max-width: 20rem" required>
+          <option value="">Hakem seçiniz</option>
+          <% availableReviewers.forEach(function (reviewer) { %>
+            <option value="<%= reviewer.id %>"><%= reviewer.name %> <%= reviewer.surname %></option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-person-add me-1"></i>Ata</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-4">
+    <h2 class="h5 mb-3"><i class="bi bi-gavel me-1"></i>Editöryal Karar</h2>
+
+    <% if (submission.status === "published") { %>
+      <p class="text-muted mb-0">Bu makale yayınlanmıştır, ek karar gerekmiyor.</p>
+    <% } else if (!reviewsComplete) { %>
+      <p class="text-muted mb-0">
+        <i class="bi bi-hourglass-split me-1"></i>
+        <% if (assignments.length === 0) { %>
+          Karar verebilmek için önce yukarıdan en az bir hakem atamalısınız.
+        <% } else { %>
+          Tüm hakem değerlendirmeleri tamamlanmadan editöryal karar verilemez.
+        <% } %>
+      </p>
+    <% } else { %>
+      <form action="/editor/submissions/<%= submission.id %>/decision" method="POST" class="mb-4">
+        <div class="mb-3">
+          <label class="form-label">Karar</label>
+          <select name="status" class="form-select" required>
+            <option value="">Seçiniz</option>
+            <% decidableStatuses.forEach(function (status) { %>
+              <option value="<%= status %>"><%= statusLabels[status] %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Yazara İletilecek Not</label>
+          <textarea name="message" class="form-control" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Kararı Gönder</button>
+      </form>
+
+      <% if (submission.status === "accepted") { %>
+        <form action="/editor/submissions/<%= submission.id %>/publish" method="POST">
+          <button type="submit" class="btn btn-success"><i class="bi bi-globe me-1"></i>Yayına Al</button>
+        </form>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

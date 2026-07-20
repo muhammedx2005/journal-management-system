@@ -1,0 +1,109 @@
+<%- include('../partials/header') %>
+
+<div class="page-banner p-4 p-md-5 mb-5">
+  <div class="page-banner__bg" style="background-image: url('<%= journal.media.aboutImage %>');" role="img" aria-label="<%= journal.media.aboutImageAlt %>"></div>
+  <div class="page-banner__overlay"></div>
+  <div>
+    <span class="hero-eyebrow mb-2"><i class="bi bi-info-circle"></i>Hakkımızda</span>
+    <h1 class="h2 fw-bold mt-3 mb-0"><%= journal.name %></h1>
+  </div>
+</div>
+
+<section class="mb-5">
+  <div class="row g-5 align-items-start">
+    <div class="col-lg-7">
+      <span class="section-eyebrow">Amacımız ve Kapsamımız</span>
+      <h2 class="h3 mb-3 mt-2">Vizyonumuz</h2>
+      <p class="text-muted"><%= journal.about.summary %></p>
+
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <span class="icon-tile mb-3"><i class="bi bi-bullseye"></i></span>
+              <h3 class="h6">Misyonumuz</h3>
+              <p class="text-muted small mb-0"><%= journal.about.mission %></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <span class="icon-tile mb-3"><i class="bi bi-eye"></i></span>
+              <h3 class="h6">Vizyonumuz</h3>
+              <p class="text-muted small mb-0"><%= journal.about.vision %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-body">
+          <span class="section-eyebrow">Odak Alanları</span>
+          <h3 class="h5 mb-3 mt-2">Derginin Kapsamı</h3>
+          <ul class="list-unstyled d-grid gap-3 mb-0">
+            <% journal.about.focusAreas.forEach(function (area) { %>
+              <li class="d-flex align-items-center gap-2">
+                <i class="bi bi-check2-circle text-primary fs-5"></i>
+                <span><%= area %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5">
+  <span class="section-eyebrow">Editoryal Kurul</span>
+  <h2 class="h3 mb-4 mt-2">Baş Editör</h2>
+  <div class="card">
+    <div class="card-body p-4 p-md-5">
+      <div class="d-flex flex-column flex-md-row gap-4 align-items-md-center">
+        <span class="profile-avatar"><%= journal.editorInChief.initials %></span>
+        <div class="flex-grow-1">
+          <h3 class="h5 mb-1">
+            <% if (journal.editorInChief.title) { %><%= journal.editorInChief.title %> <% } %><%= journal.editorInChief.name %>
+          </h3>
+          <p class="text-muted small mb-0"><%= journal.editorInChief.bio %></p>
+        </div>
+      </div>
+
+      <hr class="my-4" />
+
+      <div class="row g-0">
+        <div class="col-md-6">
+          <div class="profile-fact">
+            <i class="bi bi-mortarboard text-primary"></i>
+            <span class="small"><strong>Kurum:</strong> <%= journal.editorInChief.institution %>, <%= journal.editorInChief.department %></span>
+          </div>
+        </div>
+        <% if (journal.contact.address) { %>
+          <div class="col-md-6">
+            <div class="profile-fact">
+              <i class="bi bi-geo-alt text-primary"></i>
+              <span class="small"><strong>Konum:</strong> <%= journal.contact.address %></span>
+            </div>
+          </div>
+        <% } %>
+        <div class="col-md-6">
+          <div class="profile-fact">
+            <i class="bi bi-envelope text-primary"></i>
+            <a href="mailto:<%= journal.editorInChief.email %>" class="small text-decoration-none"><%= journal.editorInChief.email %></a>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="profile-fact">
+            <i class="bi bi-telephone text-primary"></i>
+            <span class="small"><%= journal.editorInChief.phone %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

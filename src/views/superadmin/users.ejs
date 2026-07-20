@@ -1,0 +1,88 @@
+<%- include('../partials/header') %>
+<%- include('../partials/editor-subnav') %>
+
+<div class="mb-4">
+  <h1 class="h3 mb-1"><i class="bi bi-person-gear text-primary me-2"></i>Kullanıcı Yönetimi</h1>
+  <p class="text-muted">Kullanıcıların Yazar / Hakem / Editör rollerini buradan verebilir veya kaldırabilirsiniz.</p>
+</div>
+
+<% if (users.length === 0) { %>
+  <div class="card">
+    <div class="card-body text-center text-muted py-5">Henüz kullanıcı bulunmuyor.</div>
+  </div>
+<% } else { %>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Ad Soyad</th>
+            <th>E-posta</th>
+            <th>Mevcut Roller</th>
+            <th>Rolleri Düzenle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(function (rowUser) { %>
+            <tr>
+              <td class="text-nowrap"><%= rowUser.name %> <%= rowUser.surname %></td>
+              <td class="text-nowrap"><%= rowUser.email %></td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <% if (rowUser.is_superadmin) { %>
+                    <span class="badge rounded-pill badge--published">Süper Admin</span>
+                  <% } %>
+                  <% if (!rowUser.is_author && !rowUser.is_reviewer && !rowUser.is_editor) { %>
+                    <span class="text-muted small">&ndash;</span>
+                  <% } %>
+                  <% if (rowUser.is_author) { %><span class="badge rounded-pill text-bg-secondary"><%= roleLabels.author %></span><% } %>
+                  <% if (rowUser.is_reviewer) { %><span class="badge rounded-pill text-bg-secondary"><%= roleLabels.reviewer %></span><% } %>
+                  <% if (rowUser.is_editor) { %><span class="badge rounded-pill text-bg-secondary"><%= roleLabels.editor %></span><% } %>
+                </div>
+              </td>
+              <td>
+                <form action="/superadmin/users/<%= rowUser.id %>/roles" method="POST" class="d-flex flex-wrap align-items-center gap-3">
+                  <div class="form-check form-check-inline mb-0">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="isAuthor-<%= rowUser.id %>"
+                      name="isAuthor"
+                      <%= rowUser.is_author ? "checked" : "" %>
+                    />
+                    <label class="form-check-label small" for="isAuthor-<%= rowUser.id %>">Yazar</label>
+                  </div>
+                  <div class="form-check form-check-inline mb-0">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="isReviewer-<%= rowUser.id %>"
+                      name="isReviewer"
+                      <%= rowUser.is_reviewer ? "checked" : "" %>
+                    />
+                    <label class="form-check-label small" for="isReviewer-<%= rowUser.id %>">Hakem</label>
+                  </div>
+                  <div class="form-check form-check-inline mb-0">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="isEditor-<%= rowUser.id %>"
+                      name="isEditor"
+                      <%= rowUser.is_editor ? "checked" : "" %>
+                    />
+                    <label class="form-check-label small" for="isEditor-<%= rowUser.id %>">Editör</label>
+                  </div>
+                  <button type="submit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-check-lg me-1"></i>Kaydet
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
