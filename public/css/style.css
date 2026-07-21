@@ -189,6 +189,7 @@ html {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
+  font-size: 1.05rem !important;
 }
 
 /* Sag ustteki aksiyon kumesi (avatar, cikis yap, tema, hamburger): asla
@@ -205,18 +206,39 @@ html {
   color: var(--nav-text);
   opacity: 0.75;
   font-weight: 500;
-  font-size: 0.85rem;
-  white-space: nowrap;
-  padding: 0.45rem 0.6rem !important;
+  font-size: 0.78rem !important;
+  white-space: nowrap !important;
+  padding: 0.4rem 0.5rem !important;
   border-radius: 0.6rem;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 
-/* Menu linkleri tek satirda kalsin diye nav-item/dropdown-toggle icindeki
-   metinler de (label kelimeleri arasi bosluk olsa bile) kendi icinde
-   satira kirilmaz - bkz. "Makaleler ve Sayilar" / "Yazarlara Rehber". */
-.navbar-glass .nav-item {
-  white-space: nowrap;
+/* Menu linkleri (ve icindeki her metin/ikon) tek satirda kalsin diye
+   nav-item/navbar-nav/dropdown-toggle seviyesinde de satir kirilmasi
+   tamamen kapatilir - bkz. "Makaleler ve Sayilar" / "Yazarlara Rehber".
+   !important: Bootstrap'in .navbar-expand-lg media-query kurallariyla
+   ayni ozgunlukte cakisabiliyor, bu yuzden kesin kazanmasi gerekiyor. */
+.navbar-glass .nav-item,
+.navbar-glass .navbar-nav,
+.navbar-glass .dropdown-toggle {
+  white-space: nowrap !important;
+}
+
+/* Butun menu satiri (iki satira degil) tek satira sigsin diye linkler
+   arasindaki bosluk da daraltilir - Bootstrap'in gap-lg-1/gap-lg-2
+   yardimci siniflarini ezer. */
+.navbar-glass .navbar-nav {
+  gap: 0.1rem !important;
+}
+
+/* Navbar-collapse (menu blogu) hicbir genislikte brand/actions'in
+   ALTINA (2. satira) duşmesin - buyuk ekranda Bootstrap zaten bunu
+   varsayilan olarak yapar, ama olasi bir cakismaya karsi acikca
+   sabitliyoruz. */
+@media (min-width: 992px) {
+  .navbar-glass > .container {
+    flex-wrap: nowrap !important;
+  }
 }
 
 .navbar-glass .nav-link:hover,
