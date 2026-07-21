@@ -205,9 +205,18 @@ html {
   color: var(--nav-text);
   opacity: 0.75;
   font-weight: 500;
-  padding: 0.5rem 0.85rem !important;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  padding: 0.45rem 0.6rem !important;
   border-radius: 0.6rem;
   transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+/* Menu linkleri tek satirda kalsin diye nav-item/dropdown-toggle icindeki
+   metinler de (label kelimeleri arasi bosluk olsa bile) kendi icinde
+   satira kirilmaz - bkz. "Makaleler ve Sayilar" / "Yazarlara Rehber". */
+.navbar-glass .nav-item {
+  white-space: nowrap;
 }
 
 .navbar-glass .nav-link:hover,
